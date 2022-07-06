@@ -56,8 +56,6 @@ jobs:
         run: |
           git checkout gh-pages
           git merge --no-ff -s recursive -X subtree=datalad_catalog/catalog main
-          git add .
-          git commit -m "GH-ACTION: merge catalog demo changes into gh-pages branch"
           git push origin gh-pages
 
 
