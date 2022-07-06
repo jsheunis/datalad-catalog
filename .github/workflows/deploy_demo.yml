@@ -6,7 +6,6 @@ on:
       - main
 
 jobs:
-
   check:
     runs-on: ubuntu-latest
     outputs:
@@ -28,21 +27,19 @@ jobs:
             echo "Branch: $refname"
             echo "Previous commit: $oldrev"
             echo "New commit: $newrev"
-            if [ "$refname" = "refs/heads/master" ]
+            if [ "$refname" = "refs/heads/main" ]
             then
               changed_files=$(git diff-tree --name-only -r "$oldrev" "$newrev")
             fi
           done
-          git diff --name-only HEAD^ HEAD > files.txt
+
           echo "::set-output name=run_job::false"
-          while IFS= read -r file
-          do
+          while read -r line; do
             if [[ $file == *datalad_catalog/catalog/* ]]; then
               echo "::set-output name=run_job::true"
               break
             fi
-          done < files.txt
-
+          done <<< "$changed_files"
   build:
     needs: check
     if: needs.check.outputs.run_job == 'true'
