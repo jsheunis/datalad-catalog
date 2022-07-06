@@ -24,6 +24,8 @@ jobs:
       - name: check modified files
         id: check_files
         run: |
+          echo "========== check logs =========="
+          git log
           echo "========== check if any modified files include *datalad_catalog/catalog/* =========="
           changed_files=$(git diff --name-only ${{ github.event.after }}..${{ github.event.before }})
 
