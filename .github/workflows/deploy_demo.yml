@@ -17,21 +17,15 @@ jobs:
           git config --global user.name "GitHub Almighty"
       - name: Checkout gh-pages
         uses: actions/checkout@v3
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: check modified files
         id: check_files
         run: |
           echo "========== check if any modified files include *datalad_catalog/catalog/* =========="
-          changed_files=""
-          while read -r oldrev newrev refname
-          do
-            echo "Branch: $refname"
-            echo "Previous commit: $oldrev"
-            echo "New commit: $newrev"
-            if [ "$refname" = "refs/heads/main" ]
-            then
-              changed_files=$(git diff-tree --name-only -r "$oldrev" "$newrev")
-            fi
-          done
+          changed_files=$(git diff --name-only -r HEAD.."${{ toJson(github.event.before) }}")
 
           echo "::set-output name=run_job::false"
           while read -r line; do
