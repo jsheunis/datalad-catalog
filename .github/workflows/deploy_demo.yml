@@ -17,6 +17,10 @@ jobs:
           git config --global user.name "GitHub Almighty"
       - name: Checkout main
         uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
+
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
