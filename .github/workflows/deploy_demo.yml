@@ -1,0 +1,54 @@
+name: push_catalog_to_gh_pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    steps:
+      - name: Set up environment
+        run: |
+          git config --global user.email "test@github.land"
+          git config --global user.name "GitHub Almighty"
+      - name: check modified files
+        id: check_files
+        run: |
+          echo "=============== list modified files ==============="
+          git diff --name-only HEAD^ HEAD
+          
+          echo "========== check if files include *datalad_catalog/catalog/* =========="
+          git diff --name-only HEAD^ HEAD > files.txt
+          echo "::set-output name=run_job::false"
+          while IFS= read -r file
+          do
+            if [[ $file == *datalad_catalog/catalog/* ]]; then
+              echo "::set-output name=run_job::true"
+              break
+            fi
+          done < files.txt
+
+  build:
+    needs: check
+    if: needs.check.outputs.run_job == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up environment
+        run: |
+          git config --global user.email "test@github.land"
+          git config --global user.name "GitHub Almighty"
+      - name: Checkout gh-pages
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+      - name: Merge and push changes to gh-pages
+        run: |
+          git merge --no-ff -s recursive -X subtree=datalad_catalog/catalog main
+          git add .
+          git commit -m "GH-ACTION: merge catalog demo changes into gh-pages branch"
+          git push origin gh-pages
