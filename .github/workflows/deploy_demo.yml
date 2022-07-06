@@ -50,6 +50,7 @@ jobs:
           git config --global user.name "GitHub Almighty"
       - name: Checkout main
         uses: actions/checkout@v3
+        with:
           fetch-depth: 0
       - name: Merge and push changes to gh-pages
         run: |
